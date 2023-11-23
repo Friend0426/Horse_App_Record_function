@@ -513,7 +513,7 @@ class _HomeState extends State<Home> {
   }
     return Scaffold(
       backgroundColor: my_helper.backgroundColor,
-      /*
+      
       appBar: AppBar(
         backgroundColor: Colors.red,
         title: MyText(txt: 'Home', color: Colors.white, txtSize: 18,fontWeight: FontWeight.bold),
@@ -545,11 +545,6 @@ class _HomeState extends State<Home> {
                 }
             });
           }
-<<<<<<< HEAD
-          if (index == 1)
-          {
-              contact=await FlutterContactPicker().selectContact();
-=======
           if (index == 1) {
              contact=await FlutterContactPicker().selectContact();
     
@@ -575,10 +570,9 @@ class _HomeState extends State<Home> {
                   getWeekDays();                  
                 }
             });*/
->>>>>>> tmp
           }
         },
-        ),      */
+        ),      
       body: Column(
         children: [
           SizedBox(height: 20),
