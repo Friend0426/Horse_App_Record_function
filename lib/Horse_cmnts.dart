@@ -41,6 +41,10 @@ class _Horse_cmntsState extends State<Horse_cmnts> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       appBar: AppBar(
+        backgroundColor: Colors.red,
+        title: MyText(txt: "Comment", color: Colors.white, txtSize: 20,fontWeight: FontWeight.bold),
+      ),
 
       body: Center(
         child: Padding(
