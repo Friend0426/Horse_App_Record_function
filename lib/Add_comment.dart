@@ -48,14 +48,14 @@ class _Add_commentState extends State<Add_comment> {
   final Shedule_modle shedule_modle;
   final DateTime weekDay;
   final name=TextEditingController(),year_born=TextEditingController(),age=TextEditingController();
-
 //  String yearBorn_String='';
 
   _Add_commentState(this.shedule_modle, this.weekDay);
 
   String yearBorn_String='';
   String show_flag= '';
-
+  String record_path = '';
+  int record_flag = 1;
   @override
   TextEditingController dateController = TextEditingController(text: DateFormat.yMd().format(DateTime.now()));
   void initState() {
@@ -134,6 +134,20 @@ class _Add_commentState extends State<Add_comment> {
                 fontSize: 50,
               ),
             ),
+      Container(
+              width: double.infinity,
+              color: Color.fromARGB(255, 109, 106, 213),              
+              child: Padding(
+                padding: const EdgeInsets.only(left: 40,right: 40,top: 10,bottom: 10),
+                child: Row(children: [
+                  MyText(txt: DateFormat('M-d-yyyy').format(weekDay), color: Colors.black, txtSize: 20,fontWeight: FontWeight.bold),
+                  Spacer(),
+                  MyText(txt: shedule_modle.horse.toString()+' hd', color: Colors.black, txtSize: 20,fontWeight: FontWeight.bold),
+                ],),
+              ),
+            ),    
+            SizedBox(height: 20,),
+
         ShowHorse(),
         My_Btn(txt: 'Add', btn_color: Colors.red, btn_size: 200, gestureDetector: GestureDetector(onTap: () {
               showDialog(
@@ -537,7 +551,7 @@ class _Add_commentState extends State<Add_comment> {
                                   child: My_Btn(txt: 'Upload Picture', btn_color: Colors.red, btn_size: 200, gestureDetector: GestureDetector(onTap: () async{
 
                                     xfile=await ImagePicker().pickImage(source: ImageSource.gallery);
-                                   
+                                    record_flag=1;
                                   },)),
                                 ),
                               ),
@@ -547,7 +561,7 @@ class _Add_commentState extends State<Add_comment> {
                                   child: My_Btn(txt: 'Upload MP3', btn_color: Colors.red, btn_size: 200, gestureDetector: GestureDetector(onTap: () async{
 
                                     res=await FilePicker.platform.pickFiles();
-                                   
+                                    record_flag=3;                                   
                                   },)),
                                 ),
                               ),
@@ -581,14 +595,17 @@ class _Add_commentState extends State<Add_comment> {
                                             Navigator.pop(context);
                                           }, child: Text('No')),
                                           TextButton(onPressed: () {
-                                            Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text, img: path!, owner_name: shedule_modle.owner_name,
-                                                time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: false);
+                                            record_flag=2;
+                                            Navigator.pop(context);
+
+/*                                            Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text, img: record_path!, owner_name: shedule_modle.owner_name,
+                                                time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: 2);
 //                                            praf_handler.add_list(horse_model.name+horse_model.age, jsonEncode(horse_cmnt_model.toJson()));
                                             praf_handler.add_list(name, jsonEncode(horse_cmnt_model.toJson()));
                                             
                                             EasyLoading.showSuccess('added');
                                             Navigator.pop(context);
-                                            Future.delayed(Duration(seconds: 1)).then((value) => getHistoryList());
+                                            Future.delayed(Duration(seconds: 1)).then((value) => getHistoryList());*/
                                           }, child: Text('YES'))
                                         ],);
                                       },);
@@ -609,9 +626,10 @@ class _Add_commentState extends State<Add_comment> {
                                   try{
 
                                     final directory = await getApplicationDocumentsDirectory();
-                                    final path = '${directory.path}/myFile.mp3';
-
+ //                                   final path = '${directory.path}/myFile.mp3';
+                                    final path = '${directory.path}/myFile_${DateTime.now().millisecondsSinceEpoch}.mp3';
                                     await record.start(const RecordConfig(), path: path);
+                                    record_path=path;
                                     EasyLoading.showSuccess('speak');
                                   }
                                   catch(error){
@@ -643,48 +661,62 @@ class _Add_commentState extends State<Add_comment> {
                           // You can access the entered data using nameController.text and ageController.text
                           // Perform your data validation and saving logic here
                           // Then close the dialog
-                         if(xfile!=null)
-                                    {
-                                      print(selectedDate);
-/*                                      Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text, img: xfile.path, owner_name: shedule_modle.owner_name,
-                                          time_of_cmnt: DateTime.now().millisecondsSinceEpoch, img_picked: true);
-                                      praf_handler.add_list(horse_model.name+horse_model.age, jsonEncode(horse_cmnt_model.toJson()));*/
-                                     Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text,  img: xfile?.path ?? '', owner_name: name,
-                                          time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: true);
+                          if(record_flag==2)
+                          {
+                                Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text, img: record_path!, owner_name: shedule_modle.owner_name,
+                                                time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: 2);
+//                                            praf_handler.add_list(horse_model.name+horse_model.age, jsonEncode(horse_cmnt_model.toJson()));
+                                            praf_handler.add_list(name, jsonEncode(horse_cmnt_model.toJson()));
+                                            
+                                            EasyLoading.showSuccess('added');                          
+                                record_flag=0;
+                               xfile=null;
+                                res=null;
+                                record_path="";
+                          }
+                          else if(xfile!=null&& record_flag==1)
+                          {
+                               Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text,  img: xfile?.path ?? '', owner_name: name,
+                                          time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: 1);
                                       praf_handler.add_list(name, jsonEncode(horse_cmnt_model.toJson()));
                                       EasyLoading.showSuccess('added');
-//                                      Future.delayed(Duration(seconds: 1)).then((value) => getHistoryList());
-                                    }                          
-                            bool? permissionsGranted = await Telephony.instance.requestPhoneAndSmsPermissions;
-                          if(!permissionsGranted!)
-                            {
-                              EasyLoading.showError('give permisson');
-                              return;
-                            }
-                           if(res!=null)
+                                record_flag=0;
+                               xfile=null;
+                                res=null;
+                                record_path="";
+
+                          }
+                          else if(res!=null && record_flag == 3)
                                     {
                                       Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text, img: res?.files?.isNotEmpty == true ? res!.files.single.path! : "defaultPath", owner_name: name,
-                                          time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: false);
+                                          time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: 2);
 //                                      praf_handler.add_list(horse_model.name+horse_model.age, jsonEncode(horse_cmnt_model.toJson()));
                                       praf_handler.add_list(name, jsonEncode(horse_cmnt_model.toJson()));
 
                                       EasyLoading.showSuccess('added');
                                       Future.delayed(Duration(seconds: 1)).then((value) => getHistoryList());
-                                    }                            
-                          else{
-                            Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text, img:  "defaultPath", owner_name: name,
-                                          time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: false);
+                                record_flag=0;
+                               xfile=null;
+                                res=null;
+                                record_path="";
+
+                                    }
+                         else
+                         {
+                                Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text, img:  "defaultPath", owner_name: name,
+                                          time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: 0);
 //                                      praf_handler.add_list(horse_model.name+horse_model.age, jsonEncode(horse_cmnt_model.toJson()));
                                       praf_handler.add_list(name, jsonEncode(horse_cmnt_model.toJson()));
 
                                       EasyLoading.showSuccess('added');
                                       Future.delayed(Duration(seconds: 1)).then((value) => getHistoryList());
-                          }
-//                          Horse_model model=Horse_model(name: name.text, year_born: year_born.text, age: age.text,
-  //                            owner_name: shedule_modle.owner_name, owner_nbr: shedule_modle.owner_phone);
-//                          String s=jsonEncode(model.toJson());
-//                          await praf_handler.add_list(shedule_modle.owner_name+my_helper.all_horses, s);
+                                record_flag=0;
+                               xfile=null;
+                                res=null;
+                                record_path="";
 
+                         }     
+                              
                           getHistoryList();
                           Navigator.of(context).pop();
                         },
@@ -769,7 +801,7 @@ class _Add_commentState extends State<Add_comment> {
 //                  Share.shareFiles(['${xfile?.path}'], text: 'Great picture');
                   for (var i = 0; i < my_cmnts_list.length; i++) {
                        //   print(productsListForShare[i].photo!.path!);
-                        if(my_cmnts_list[i].img_picked)
+                        if(my_cmnts_list[i].img_picked!=0)
                         {
                           var xfile = XFile(my_cmnts_list[i].img);
                           files.add(xfile);

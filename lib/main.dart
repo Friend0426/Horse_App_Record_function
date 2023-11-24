@@ -233,6 +233,8 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterL
 
 
 Future<void> initializeService() async {
+
+  
   final service = FlutterBackgroundService();
 
 

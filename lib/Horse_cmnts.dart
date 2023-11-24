@@ -54,7 +54,9 @@ class _Horse_cmntsState extends State<Horse_cmnts> {
               SizedBox(height: 80,),
               MyText(txt: list[pos].owner_name, color: Colors.black, txtSize: 20),
 
-              list[pos].img_picked?Image.file(File(list[pos].img)):
+              if(list[pos].img_picked==1)
+                Image.file(File(list[pos].img)),
+              if(list[pos].img_picked==2)                
               ElevatedButton(onPressed: () async{
 
                 if(play){

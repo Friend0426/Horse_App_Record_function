@@ -121,7 +121,7 @@ class _AppointmentState extends State<Appointment> {
             
             Container(
               width: double.infinity,
-              color: const Color.fromARGB(255, 239, 57, 57),
+              color: Color.fromARGB(255, 49, 43, 225),
               child: Padding(
                 padding: const EdgeInsets.only(left: 40,right: 40,top: 10,bottom: 10),
                 child: Row(children: [

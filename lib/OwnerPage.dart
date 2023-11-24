@@ -46,6 +46,9 @@ class _OwnerPageState extends State<OwnerPage> {
   String show_flag= '';
    Shedule_modle ?shedule_modle;
   DateTime ?weekDay;
+  String record_path = '';
+  int record_flag = 1;
+  String buttonTitle = "RRS";
   TextEditingController dateController = TextEditingController(text: DateFormat.yMd().format(DateTime.now()));
 
   final name=TextEditingController(),year_born=TextEditingController(),age=TextEditingController();
@@ -441,17 +444,20 @@ class _OwnerPageState extends State<OwnerPage> {
             color: Colors.red,
 
           ),
-          child: Center(child: IconButton(onPressed: () async{
-               showDialog(
+            child: Center(child: IconButton(onPressed: () async{
+                showDialog(
                 context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('Add Horses'),
-                    content: Column(
+                builder: (context) {
+                  bool recording = false;
+                  return StatefulBuilder(builder:(context, setState) {
+             return AlertDialog(
+                    
+                    title: Text('Add Comment'),
+                    content:  Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Add your form fields here
-//                        MyTextField(controller: nameController, label: 'Horse Name'),
+//                        MyTextField(controller: nameController, label:z'Horse Name'),
                          Container(
                         width: double.infinity,
                         color: Colors.grey,
@@ -498,7 +504,6 @@ class _OwnerPageState extends State<OwnerPage> {
                           ),
                         ),
                       ),
-                                            
 
                          Row(children: [
 
@@ -508,7 +513,7 @@ class _OwnerPageState extends State<OwnerPage> {
                                   child: My_Btn(txt: 'Upload Picture', btn_color: Colors.red, btn_size: 200, gestureDetector: GestureDetector(onTap: () async{
 
                                     xfile=await ImagePicker().pickImage(source: ImageSource.gallery);
-                                   
+                                    record_flag=1;
                                   },)),
                                 ),
                               ),
@@ -518,17 +523,17 @@ class _OwnerPageState extends State<OwnerPage> {
                                   child: My_Btn(txt: 'Upload MP3', btn_color: Colors.red, btn_size: 200, gestureDetector: GestureDetector(onTap: () async{
 
                                     res=await FilePicker.platform.pickFiles();
-                                   
+                                    record_flag=3;                                   
                                   },)),
                                 ),
                               ),
-                            ],),
 
-
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: My_Btn(txt: recording?'Stop':'start recording', btn_color: Colors.red, btn_size: 200, gestureDetector: GestureDetector(onTap: () async{
-
+                           
+                              Expanded(child: Padding(
+                               padding: const EdgeInsets.all(8.0),
+                              // ignore: dead_code
+                              child: My_Btn(txt: recording? "Stop":"Record", btn_color: Colors.red, btn_size: 200, gestureDetector: GestureDetector(onTap: () async{
+                                
                                 if(!await record.hasPermission()){
                                   EasyLoading.showError('give permission');
                                   return;
@@ -536,7 +541,13 @@ class _OwnerPageState extends State<OwnerPage> {
 
 
                                 if(recording){
-
+                                  
+                                    setState(() {
+                                      recording=!recording;
+//                                      buttonTitle = 'Start Recording';
+                                      print(buttonTitle);
+                                      print(recording);
+                                    });
                                   final path = await record.stop();
                                   record.dispose();
                                   showDialog(context: context,
@@ -546,35 +557,41 @@ class _OwnerPageState extends State<OwnerPage> {
                                             Navigator.pop(context);
                                           }, child: Text('No')),
                                           TextButton(onPressed: () {
-                                            Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text, img: path!, owner_name: contact!.fullName!,
-                                                time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: false);
+                                            record_flag=2;
+                                            
+/*                                            Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text, img: record_path!, owner_name: shedule_modle.owner_name,
+                                                time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: 2);
 //                                            praf_handler.add_list(horse_model.name+horse_model.age, jsonEncode(horse_cmnt_model.toJson()));
                                             praf_handler.add_list(name, jsonEncode(horse_cmnt_model.toJson()));
                                             
                                             EasyLoading.showSuccess('added');
                                             Navigator.pop(context);
-                                            Future.delayed(Duration(seconds: 1)).then((value) => getHistoryList());
+                                            Future.delayed(Duration(seconds: 1)).then((value) => getHistoryList());*/
                                           }, child: Text('YES'))
                                         ],);
                                       },);
-                                  recording=false;
-                                  setState(() {
-
-                                  });
+ 
+                                    
                                 }
                                 else{
+                                    setState(() {
+                                      recording=!recording;
+
+//                                      recording=true;                                      
+//                                      buttonTitle = 'Stop Recording';
+                                      print(buttonTitle);
+                                      print(recording);
+
+                                    });
 
                                   try{
 
                                     final directory = await getApplicationDocumentsDirectory();
-                                    final path = '${directory.path}/myFile.mp3';
-
+ //                                   final path = '${directory.path}/myFile.mp3';
+                                    final path = '${directory.path}/myFile_${DateTime.now().millisecondsSinceEpoch}.mp3';
                                     await record.start(const RecordConfig(), path: path);
+                                    record_path=path;
                                     EasyLoading.showSuccess('speak');
-                                    recording=true;
-                                    setState(() {
-
-                                    });
                                   }
                                   catch(error){
                                     print('samak'+error.toString());
@@ -583,11 +600,18 @@ class _OwnerPageState extends State<OwnerPage> {
 
                                 }
 
+                            
 
 
+                              },)), 
+                              ),)
+                            ],),
 
-                              },)),
-                            ),
+
+                      /*      Padding(
+                                                          
+                           
+                            ),*/
 
                       ],
                     ),
@@ -598,40 +622,63 @@ class _OwnerPageState extends State<OwnerPage> {
                           // You can access the entered data using nameController.text and ageController.text
                           // Perform your data validation and saving logic here
                           // Then close the dialog
-                         if(xfile!=null)
-                                    {
-                                      print(selectedDate);
-/*                                      Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text, img: xfile.path, owner_name: shedule_modle.owner_name,
-                                          time_of_cmnt: DateTime.now().millisecondsSinceEpoch, img_picked: true);
-                                      praf_handler.add_list(horse_model.name+horse_model.age, jsonEncode(horse_cmnt_model.toJson()));*/
-                                     Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text,  img: xfile?.path ?? '', owner_name: name,
-                                          time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: true);
+                          if(record_flag==2)
+                          {
+                                Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text, img: record_path!, owner_name: name,
+                                                time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: record_flag);
+//                                            praf_handler.add_list(horse_model.name+horse_model.age, jsonEncode(horse_cmnt_model.toJson()));
+                                            praf_handler.add_list(name, jsonEncode(horse_cmnt_model.toJson()));
+                                            
+                                            EasyLoading.showSuccess('added');                          
+                                record_flag=0;
+                               xfile=null;
+                                res=null;
+                                record_path="";
+
+                          }
+                          else if(xfile!=null&& record_flag==1)
+                          {
+                               Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text,  img: xfile?.path ?? '', owner_name: name,
+                                          time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: 1);
                                       praf_handler.add_list(name, jsonEncode(horse_cmnt_model.toJson()));
                                       EasyLoading.showSuccess('added');
-//                                      Future.delayed(Duration(seconds: 1)).then((value) => getHistoryList());
-                                    }                          
-                            bool? permissionsGranted = await Telephony.instance.requestPhoneAndSmsPermissions;
-                          if(!permissionsGranted!)
-                            {
-                              EasyLoading.showError('give permisson');
-                              return;
-                            }
-                           if(res!=null)
+                                record_flag=0;
+                               xfile=null;
+                                res=null;
+                                record_path="";
+
+                          }
+                          else if(res!=null && record_flag == 3)
                                     {
                                       Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text, img: res?.files?.isNotEmpty == true ? res!.files.single.path! : "defaultPath", owner_name: name,
-                                          time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: false);
+                                          time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: 2);
 //                                      praf_handler.add_list(horse_model.name+horse_model.age, jsonEncode(horse_cmnt_model.toJson()));
                                       praf_handler.add_list(name, jsonEncode(horse_cmnt_model.toJson()));
 
                                       EasyLoading.showSuccess('added');
                                       Future.delayed(Duration(seconds: 1)).then((value) => getHistoryList());
+                                record_flag=0;
+                               xfile=null;
+                                res=null;
+                                record_path="";
 
-                                    }                            
-//                          Horse_model model=Horse_model(name: name.text, year_born: year_born.text, age: age.text,
-  //                            owner_name: shedule_modle.owner_name, owner_nbr: shedule_modle.owner_phone);
-//                          String s=jsonEncode(model.toJson());
-//                          await praf_handler.add_list(shedule_modle.owner_name+my_helper.all_horses, s);
+                                    }
+                         else
+                         {
+                                Horse_cmnt_model horse_cmnt_model=Horse_cmnt_model(cmnt: cmnt.text, img:  "defaultPath", owner_name: name,
+                                          time_of_cmnt: selectedDate.millisecondsSinceEpoch, img_picked: 0);
+//                                      praf_handler.add_list(horse_model.name+horse_model.age, jsonEncode(horse_cmnt_model.toJson()));
+                                      praf_handler.add_list(name, jsonEncode(horse_cmnt_model.toJson()));
 
+                                      EasyLoading.showSuccess('added');
+                                      Future.delayed(Duration(seconds: 1)).then((value) => getHistoryList());
+                                record_flag=0;
+                               xfile=null;
+                                res=null;
+                                record_path="";
+
+                         }     
+                              
                           getHistoryList();
                           Navigator.of(context).pop();
                         },
@@ -645,7 +692,8 @@ class _OwnerPageState extends State<OwnerPage> {
                         child: Text('Cancel'),
                       ),
                     ],
-                  );
+                  );                    
+                  },);
                 },
               ).then((value) {
                 if (value != null) {
